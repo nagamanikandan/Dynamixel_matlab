@@ -1,0 +1,79 @@
+function XM540_animate_dynamixel(t,array_goal_position,array_present_position,array_present_current,record)
+% input argument:  t,write_pos,read_pos,record
+
+axisscale=4; %scalefactoe for plot axis limit
+colorred = [0.82 0.25 0.25];
+coloryellow = [0.78 0.65 0.2588];
+colorgreen = [0.04 0.67 0.09];
+disp(nargin)
+ 
+sl = figure('Name','Dynamixel');
+set(gcf, 'Position',  [100 100 1000 800]); % [left bottom width height]
+
+%if  nargin<=2
+    len=size(t);
+   
+     subplot('Position',  [0.05 0.2 0.4 0.5]);
+     hold on;
+     array_goal_position1=plot(t(1:1),array_goal_position(1,1:1), 'LineWidth', 2, 'Color',colorred);
+     array_present_position1=plot(t(1:1),array_present_position(1,1:1), 'LineWidth', 2, 'Color',colorgreen);
+    
+     mparray_goal_position1 = line(t(1),array_goal_position(1,1), 'Marker', 'o', 'LineWidth', 4, 'Color',colorred);
+     mparray_present_position1 = line(t(1),array_present_position(1,1), 'Marker', 'o', 'LineWidth', 4, 'Color',colorgreen);
+     title('joint angle');
+     axis([t(1),t(end),min(array_goal_position),max(array_goal_position)])
+     legend('goal_position','present_position')
+     grid on
+     xlabel('time (msec)');
+     ylabel('Angular position');
+     
+     subplot('Position',  [0.5 0.2 0.4 0.5]);
+     hold on;
+     
+     
+%      error_pos1=plot(t(1:1),abs(write_pos(1,1:1)-read_pos(1,1:1)), 'LineWidth', 2, 'Color',colorred);
+%      mperror_pos1 = line(t(1),abs(write_pos(1,1)-read_pos(1,1)), 'Marker', 'o', 'LineWidth', 4, 'Color',colorred);
+%      title('error (*0.088deg Resolution)');
+%      axis([t(1),t(end),-5,5]);
+%      grid on
+%      xlabel('time (msec)');
+%      ylabel('error *0.088deg');
+     
+      array_present_current1=plot(t(1:1),array_present_current(1,1:1), 'LineWidth', 2, 'Color',colorred);
+      mparray_present_current1 = line(t(1),array_present_current(1,1), 'Marker', 'o', 'LineWidth', 4, 'Color',colorred);
+      title('current ');
+      axis([t(1),t(end),-700,700]);
+      grid on
+      xlabel('time (msec)');
+      ylabel('Current');
+
+    for id = 1:len(2)
+    set(array_goal_position1, 'Xdata',t(1:id),'Ydata',array_goal_position(1,1:id));
+    set(mparray_goal_position1, 'Xdata',t(id),'Ydata',array_goal_position(1,id));
+    set(array_present_position1, 'Xdata',t(1:id),'Ydata',array_present_position(1,1:id));
+    set(mparray_present_position1, 'Xdata',t(id),'Ydata',array_present_position(1,id));
+    set(array_present_current1, 'Xdata',t(1:id),'Ydata',array_present_current(1,1:id));
+    set(mparray_present_current1, 'Xdata',t(id),'Ydata',array_present_current(1,id));
+%     set(error_pos1, 'Xdata',t(1:id),'Ydata',abs(write_pos(1,1:id)-read_pos(1,1:id)));
+%     set(mperror_pos1, 'Xdata',t(id),'Ydata',abs(write_pos(1,id)-read_pos(1,id)));
+    drawnow;
+    %drawnow limitrate;
+
+            if(nargin==5)
+                if (strcmp(record,'record') ==1)
+                frame = getframe(sl);
+                im = frame2im(frame);
+                [imind,cm] = rgb2ind(im,256);
+                if id == 1
+                    imwrite(imind,cm,'xm540_logging.gif','gif','LoopCount',inf);
+                else
+                    imwrite(imind,cm,'xm540_logging.gif','gif','WriteMode','append','DelayTime',.001);
+                end
+                end
+            end
+    end
+    
+
+
+%end
+end
